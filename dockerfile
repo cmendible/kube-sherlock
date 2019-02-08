@@ -2,10 +2,11 @@ FROM golang:1.11.5 AS build
 WORKDIR /src
 ADD go.mod go.sum ./
 RUN go get -v
-ADD kube-sherlock.go .
+ADD kube-sherlock.go config.yaml ./
 RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-w'
 
 FROM alpine:3.7
+COPY --from=build src/config.yaml app/config.yaml
 COPY --from=build src/kube-sherlock app/kube-sherlock
 WORKDIR /app
 CMD ./kube-sherlock

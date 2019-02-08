@@ -6,6 +6,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	
+	"github.com/olekukonko/tablewriter"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -17,29 +21,57 @@ import (
 
 func main() {
 	// get K8s Configuration
-	config := getConfig()
-
+	config := getKubeConfig()
+	
 	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Fatal(err)
 	}
 	
-	for _, namespace := range getNamespaces() {
+	// read kube-sherlock configuration
+	var c sherlockConfig
+	c.getSherlockConfig()
+
+	podResults := make(map[string][]*podResult)
+
+	for _, namespace := range c.Namespaces {
 		pods, err := clientset.CoreV1().Pods(namespace).List(metav1.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		for _, pod := range pods.Items {
-			for _, label := range getRequiredLabels(){
+			for _, label := range c.Labels {
 				_, present := pod.Labels[label]
 				if !present {
+					result := podResult {
+						Namespace: pod.Namespace,
+						PodName: pod.Name,
+					}
+
+					podResults[label] = append(podResults[label], &result)
 					fmt.Printf("Pod %v does not have the %v label\n", pod.Name, label)	
 				}
 			}
 		}
 	}
+
+	resultsTable := tablewriter.NewWriter(os.Stdout)
+	for k, result := range podResults {
+		resultsTable.SetHeader([]string{"Label", "Namespace", "Pod Name"})
+		resultsTable.SetHeaderColor(tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor},
+			tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor},
+			tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor})
+		resultsTable.SetAutoMergeCells(true)
+		resultsTable.SetRowLine(true)
+
+		for _, s := range result {
+			resultsTable.Append([]string{k, s.Namespace, s.PodName})
+		}
+	}
+
+	resultsTable.Render()
 }
 
 func homeDir() string {
@@ -49,15 +81,7 @@ func homeDir() string {
 	return os.Getenv("USERPROFILE") // windows
 }
 
-func getNamespaces() []string {
-	return []string {""}
-}
-
-func getRequiredLabels() []string {
-	return []string {"app"}
-}
-
-func getConfig() (config *rest.Config) {
+func getKubeConfig() (config *rest.Config) {
 	// Check if running outside K8s
 	useKubeConfigPtr := flag.Bool("use-kubeconfig", false, "use local kubeconfig")
 	flag.Parse()
@@ -78,4 +102,34 @@ func getConfig() (config *rest.Config) {
 	}
 	
 	return config
+}
+
+func (c *sherlockConfig) getSherlockConfig() *sherlockConfig  {
+
+    yamlFile, err := ioutil.ReadFile("config.yaml")
+    if err != nil {
+        log.Fatalf("yamlFile.Get err #%v ", err)
+    }
+
+    err = yaml.Unmarshal(yamlFile, c)
+    if err != nil {
+        log.Fatalf("Unmarshal: %v", err)
+    }
+
+	// If no namespace is present in the file add an empty string to scan everything
+	if len(c.Namespaces) == 0 {
+		c.Namespaces = append(c.Namespaces, "")
+	}
+
+    return c
+}
+
+type sherlockConfig struct {
+	Namespaces []string `yaml:"namespaces"`
+    Labels []string `yaml:"labels"`
+}
+
+type podResult struct {
+	Namespace string
+	PodName string
 }
