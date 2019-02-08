@@ -2,9 +2,9 @@
 
 # kube-sherlock
 
-kube-sherlock lists all pods which do not have the lables listed in the **config.yaml** file.
+kube-sherlock lists all pods which do not have the labels listed in the **config.yaml** file.
 
-config.yaml default values are:
+The default **config.yaml** values are:
 
 ``` shell
 labels:
