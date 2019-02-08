@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
 	"gopkg.in/yaml.v2"
@@ -51,7 +50,6 @@ func main() {
 					}
 
 					podResults[label] = append(podResults[label], &result)
-					fmt.Printf("Pod %v does not have the %v label\n", pod.Name, label)	
 				}
 			}
 		}
