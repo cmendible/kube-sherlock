@@ -92,9 +92,6 @@ func renderResultsTable(podResults map[string][]*podResult) {
 	resultsTable := tablewriter.NewWriter(os.Stdout)
 	for k, result := range podResults {
 		resultsTable.SetHeader([]string{"Label", "Namespace", "Pod Name"})
-		resultsTable.SetHeaderColor(tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor},
-			tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor},
-			tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor})
 		resultsTable.SetAutoMergeCells(true)
 		resultsTable.SetRowLine(true)
 
