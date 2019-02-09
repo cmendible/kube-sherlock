@@ -6,7 +6,21 @@ kube-sherlock lists all pods which do not have the labels listed in the **config
 
 The default **config.yaml** values are:
 
-``` shell
+``` yaml
+labels:
+  - "app.kubernetes.io/name"
+  - "app.kubernetes.io/instance"
+  - "app.kubernetes.io/version"
+  - "app.kubernetes.io/component"
+  - "app.kubernetes.io/part-of"
+  - "app.kubernetes.io/managed-by"
+```
+
+It's also possible to specify the namespaces you want to scan in the **config.yaml**:
+
+``` yaml
+namespaces:
+  - default
 labels:
   - "app.kubernetes.io/name"
   - "app.kubernetes.io/instance"
@@ -29,11 +43,15 @@ kubectl apply -f service-account.yaml
 kubectl run --rm -i -t kube-sherlock --image=cmendibl3/kube-sherlock:0.1 --restart=Never --overrides='{ \"apiVersion\": \"v1\", \"spec\": { \"serviceAccountName\": \"kube-sherlock\" } }'
 ```
 
-## Sample results:
+## Sample results
 
 ``` shell
 +------------------------------+-------------+-----------------------------------------------------------------+
-| app.kubernetes.io/instance   | default     | kube-sherlock                                                   |
+|            LABEL             |  NAMESPACE  |                            POD NAME                             |
++------------------------------+-------------+-----------------------------------------------------------------+
+| app.kubernetes.io/version    | default     | mypod                                                           |
++                              +-------------+-----------------------------------------------------------------+
+|                              | kube-system | aci-connector-linux-79b768b6d6-fhb9d                            |
 +                              +             +-----------------------------------------------------------------+
-|                              |             | mypod    
+|                              |             | addon-http-application-routing-default-http-backend-5ccb95j9dgb |
 ```
