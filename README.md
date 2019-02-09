@@ -29,11 +29,15 @@ kubectl apply -f service-account.yaml
 kubectl run --rm -i -t kube-sherlock --image=cmendibl3/kube-sherlock:0.1 --restart=Never --overrides='{ \"apiVersion\": \"v1\", \"spec\": { \"serviceAccountName\": \"kube-sherlock\" } }'
 ```
 
-## Sample results:
+## Sample results
 
 ``` shell
 +------------------------------+-------------+-----------------------------------------------------------------+
-| app.kubernetes.io/instance   | default     | kube-sherlock                                                   |
+|            LABEL             |  NAMESPACE  |                            POD NAME                             |
++------------------------------+-------------+-----------------------------------------------------------------+
+| app.kubernetes.io/version    | default     | mypod                                                           |
++                              +-------------+-----------------------------------------------------------------+
+|                              | kube-system | aci-connector-linux-79b768b6d6-fhb9d                            |
 +                              +             +-----------------------------------------------------------------+
-|                              |             | mypod    
+|                              |             | addon-http-application-routing-default-http-backend-5ccb95j9dgb |
 ```
