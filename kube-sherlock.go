@@ -55,21 +55,7 @@ func main() {
 		}
 	}
 
-	resultsTable := tablewriter.NewWriter(os.Stdout)
-	for k, result := range podResults {
-		resultsTable.SetHeader([]string{"Label", "Namespace", "Pod Name"})
-		resultsTable.SetHeaderColor(tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor},
-			tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor},
-			tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor})
-		resultsTable.SetAutoMergeCells(true)
-		resultsTable.SetRowLine(true)
-
-		for _, s := range result {
-			resultsTable.Append([]string{k, s.Namespace, s.PodName})
-		}
-	}
-
-	resultsTable.Render()
+	renderResultsTable(podResults)
 }
 
 func homeDir() string {
@@ -100,6 +86,24 @@ func getKubeConfig() (config *rest.Config) {
 	}
 	
 	return config
+}
+
+func renderResultsTable(podResults map[string][]*podResult) {
+	resultsTable := tablewriter.NewWriter(os.Stdout)
+	for k, result := range podResults {
+		resultsTable.SetHeader([]string{"Label", "Namespace", "Pod Name"})
+		resultsTable.SetHeaderColor(tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor},
+			tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor},
+			tablewriter.Colors{tablewriter.Bold, tablewriter.BgBlackColor})
+		resultsTable.SetAutoMergeCells(true)
+		resultsTable.SetRowLine(true)
+
+		for _, s := range result {
+			resultsTable.Append([]string{k, s.Namespace, s.PodName})
+		}
+	}
+
+	resultsTable.Render()
 }
 
 func (c *sherlockConfig) getSherlockConfig() *sherlockConfig  {
