@@ -105,27 +105,27 @@ func renderResultsTable(podResults map[string][]*podResult) {
 
 func (c *sherlockConfig) getSherlockConfig() *sherlockConfig  {
 
-    yamlFile, err := ioutil.ReadFile("config.yaml")
-    if err != nil {
-        log.Fatalf("yamlFile.Get err #%v ", err)
-    }
+	yamlFile, err := ioutil.ReadFile("config.yaml")
+	if err != nil {
+		log.Fatalf("yamlFile.Get err #%v ", err)
+	}
 
-    err = yaml.Unmarshal(yamlFile, c)
-    if err != nil {
-        log.Fatalf("Unmarshal: %v", err)
-    }
+	err = yaml.Unmarshal(yamlFile, c)
+	if err != nil {
+		log.Fatalf("Unmarshal: %v", err)
+	}
 
 	// If no namespace is present in the file add an empty string to scan everything
 	if len(c.Namespaces) == 0 {
 		c.Namespaces = append(c.Namespaces, "")
 	}
 
-    return c
+	return c
 }
 
 type sherlockConfig struct {
 	Namespaces []string `yaml:"namespaces"`
-    Labels []string `yaml:"labels"`
+	Labels []string `yaml:"labels"`
 }
 
 type podResult struct {
