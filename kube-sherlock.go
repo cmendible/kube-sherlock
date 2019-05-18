@@ -1,13 +1,14 @@
 package main
 
 import (
-	"log"
 	"flag"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
+
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	
+
 	"github.com/olekukonko/tablewriter"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,13 +22,13 @@ import (
 func main() {
 	// get K8s Configuration
 	config := getKubeConfig()
-	
+
 	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	// read kube-sherlock configuration
 	var c sherlockConfig
 	c.getSherlockConfig()
@@ -44,9 +45,9 @@ func main() {
 			for _, label := range c.Labels {
 				_, present := pod.Labels[label]
 				if !present {
-					result := podResult {
+					result := podResult{
 						Namespace: pod.Namespace,
-						PodName: pod.Name,
+						PodName:   pod.Name,
 					}
 
 					podResults[label] = append(podResults[label], &result)
@@ -78,13 +79,13 @@ func getKubeConfig() (config *rest.Config) {
 	} else {
 		kubeconfig = ""
 	}
-	
+
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	return config
 }
 
@@ -103,7 +104,7 @@ func renderResultsTable(podResults map[string][]*podResult) {
 	resultsTable.Render()
 }
 
-func (c *sherlockConfig) getSherlockConfig() *sherlockConfig  {
+func (c *sherlockConfig) getSherlockConfig() *sherlockConfig {
 
 	yamlFile, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
@@ -125,10 +126,10 @@ func (c *sherlockConfig) getSherlockConfig() *sherlockConfig  {
 
 type sherlockConfig struct {
 	Namespaces []string `yaml:"namespaces"`
-	Labels []string `yaml:"labels"`
+	Labels     []string `yaml:"labels"`
 }
 
 type podResult struct {
 	Namespace string
-	PodName string
+	PodName   string
 }
