@@ -10,5 +10,5 @@ variables:
 
 steps:
 - script: |
-    docker info
+    ls /var/lib/docker
     docker build -t $(dockerId)/$(imageName) .
