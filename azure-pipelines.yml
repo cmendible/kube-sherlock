@@ -10,4 +10,5 @@ variables:
 
 steps:
 - script: |
+    docker info
     docker build -t $(dockerId)/$(imageName) .
