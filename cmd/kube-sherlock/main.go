@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -12,11 +13,11 @@ import (
 	"github.com/olekukonko/tablewriter"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"k8s.io/client-go/kubernetes"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-
-	_ "k8s.io/client-go/plugin/pkg/client/auth/azure"
 )
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 	podResults := make(map[string][]*podResult)
 
 	for _, namespace := range c.Namespaces {
-		pods, err := clientset.CoreV1().Pods(namespace).List(metav1.ListOptions{})
+		pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
