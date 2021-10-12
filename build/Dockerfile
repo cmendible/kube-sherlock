@@ -1,12 +1,12 @@
-FROM golang:1.11.5 AS build
+FROM golang:1.15.3 AS build
 WORKDIR /src
 ADD go.mod go.sum ./
-RUN go get -v
-ADD kube-sherlock.go config.yaml ./
-RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-w'
+RUN mkdir -p ./cmd/kube-sherlock
+ADD ./cmd/kube-sherlock/main.go ./config/config.yaml ./cmd/kube-sherlock
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-w' ./cmd/kube-sherlock
 
 FROM alpine:3.7
-COPY --from=build src/config.yaml app/config.yaml
+COPY --from=build src/cmd/kube-sherlock/config.yaml app/config.yaml
 COPY --from=build src/kube-sherlock app/kube-sherlock
 WORKDIR /app
 CMD ./kube-sherlock
