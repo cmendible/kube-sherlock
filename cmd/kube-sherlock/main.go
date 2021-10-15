@@ -23,6 +23,7 @@ func main() {
 
 	cmds := []Runner{
 		NewCheckLabelsCommand(),
+		NewCheckPodResources(),
 	}
 
 	subcommand := os.Args[1]
