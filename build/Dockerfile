@@ -9,7 +9,7 @@ FROM alpine:3.7
 COPY --from=build src/cmd/kube-sherlock/config.yaml app/config.yaml
 COPY --from=build src/kube-sherlock app/kube-sherlock
 WORKDIR /app
-CMD ./kube-sherlock
+ENTRYPOINT ["./kube-sherlock", "labels"]
 
 # Metadata
 ARG BUILD_DATE
