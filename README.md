@@ -2,6 +2,24 @@
 
 # kube-sherlock
 
+## Check Pod Requests and Limits
+
+To check pod requests and limits in the `kube-system` namespaces, you can use the following command:
+
+``` shell
+./kube-sherlock resources -n kube-system -kubeconfig
+```
+
+## Check Missing Labels
+
+To check which pods do not have the `app.kubernetes.io/name` label in the `kube-system` namespace:
+
+``` shell
+./kube-sherlock.sh labels -l app.kubernetes.io/name -n kube-system -kubeconfig
+```
+
+Using a config file:
+
 kube-sherlock lists all pods which do not have the labels listed in the **config.yaml** file.
 
 The default **config.yaml** values are:
