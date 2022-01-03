@@ -13,47 +13,32 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 )
 
-func NewCheckLabelsCommand() *CheckLabelsCommand {
-	cmd := &CheckLabelsCommand{
-		fs: flag.NewFlagSet("labels", flag.ContinueOnError),
-	}
-
+func newCheckLabelsCommand() *checkLabelsCommand {
+	cmd := &checkLabelsCommand{}
+	cmd.fs = flag.NewFlagSet("labels", flag.ContinueOnError)
 	cmd.fs.StringVar(&cmd.labels, "l", "", "labels to check")
 	cmd.fs.StringVar(&cmd.namespaces, "n", "", "namespaces to check")
-	cmd.fs.BoolVar(&cmd.table, "t", false, "Set true for output table")
-	cmd.fs.BoolVar(&cmd.useKubeConfig, "kubeconfig", false, "use local kubeconfig")
+	cmd.addCommonFlags()
 
 	return cmd
 }
 
-type CheckLabelsCommand struct {
-	fs *flag.FlagSet
-
-	labels        string
-	namespaces    string
-	table         bool
-	useKubeConfig bool
+type checkLabelsCommand struct {
+	labels     string
+	namespaces string
+	config
 }
 
-func (g *CheckLabelsCommand) Name() string {
+func (g *checkLabelsCommand) Name() string {
 	return g.fs.Name()
 }
 
-func (g *CheckLabelsCommand) Init(args []string) error {
-	return g.fs.Parse(args)
-}
+func (g *checkLabelsCommand) Run(args []string) error {
+	g.parse(args)
 
-func (g *CheckLabelsCommand) Run(config *rest.Config) error {
-	// creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		log.Fatal(err)
-	}
+	clientset := g.createKubernetesClient()
 
 	// read kube-sherlock configuration
 	var c sherlockConfig
@@ -91,11 +76,7 @@ func (g *CheckLabelsCommand) Run(config *rest.Config) error {
 	return nil
 }
 
-func (g *CheckLabelsCommand) UseKubeConfig() bool {
-	return g.useKubeConfig
-}
-
-func (g *CheckLabelsCommand) renderLabelsCommandResultsTable(podResults map[string][]*podResult) {
+func (g *checkLabelsCommand) renderLabelsCommandResultsTable(podResults map[string][]*podResult) {
 	resultsTable := tablewriter.NewWriter(os.Stdout)
 	for k, result := range podResults {
 		resultsTable.SetHeader([]string{"Label", "Namespace", "Pod Name"})
@@ -110,7 +91,7 @@ func (g *CheckLabelsCommand) renderLabelsCommandResultsTable(podResults map[stri
 	resultsTable.Render()
 }
 
-func (g *CheckLabelsCommand) renderJson(podResults map[string][]*podResult) {
+func (g *checkLabelsCommand) renderJson(podResults map[string][]*podResult) {
 	j, _ := json.MarshalIndent(podResults, "", "  ")
 	fmt.Println(string(j))
 }

@@ -10,9 +10,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}",
-            "args": [
-                "-use-kubeconfig"
-            ]
+            "args": []
         }
     ]
 }
